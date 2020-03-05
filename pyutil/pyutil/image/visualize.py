@@ -2,7 +2,8 @@ import cv2
 import numpy as np
 
 from collections import defaultdict
-from typing import Union, List, Tuple
+from typing import Union, List, Tuple, Dict, Any, Iterable
+from random import randint
 
 
 def get_random_color_map(
@@ -11,38 +12,40 @@ def get_random_color_map(
         n: int = 3
 ) -> defaultdict:
     """
-    Returns a defaultdict that defaults to a random numpy-array of n values between a_min and a_max
+    Returns a defaultdict that defaults to a tuple  of n random values between a_min and a_max
     :param a_min: Min array value
     :param a_max: Max array value
     :param n: Number of random values
     :return: Defaultdict with values
     """
-    return defaultdict(lambda: np.random.randint(a_min, a_max, n))
+    return defaultdict(lambda: tuple(int(randint(a_min, a_max)) for _ in range(n)))
 
 
 def draw_bounding_box(
         image: np.ndarray,
-        detection: dict,
+        detection: Dict[str: Any],
+        color: Tuple[int, int, int] = (255, 255, 255),
         show_label: bool = True,
-        show_confidence: bool = True,
-        color: Union[np.ndarray, Tuple, List] = (255, 255, 255)
+        show_confidence: bool = True
 ) -> np.ndarray:
     """
     Will overlay a bounding box on provided image.
     :param image: Image to overlay on
     :param detection: Detection dict to overlay. must have 'box', 'label' and 'confidence' entries
+    :param color: Color to be used
     :param show_label: If True, writes box label in image
     :param show_confidence: If True, write box confidence in image
-    :param color: Color to be used
     :return: Image
     """
-    thickness = max(image.shape) // 350
+    thickness = int(round(max(image.shape) / 350))
     h, w = image.shape[:2]
 
-    scale = np.array([1, 1, 1, 1]) if np.all(np.array(detection['box']) < 1.0) else np.array([w, h, w, h])
+    scale = np.array([w, h, w, h]) if np.all(np.array(detection['box']) <= 1.0) else np.array([1, 1, 1, 1])
     xmin, ymin, xmax, ymax = (np.array(detection['box']) * scale).astype(int)
 
-    image = cv2.rectangle(image, (xmin, ymin), (xmax, ymax), color=color, thickness=thickness)
+    # r, g, b = color
+    # color = (int(r), int(g), int(b))
+    image = cv2.rectangle(image, (xmin, ymin), (xmax, ymax), color, thickness=thickness)
 
     out_txt = ''
     if show_label:
@@ -57,7 +60,7 @@ def draw_bounding_box(
             (xmin, ymin - 15),
             cv2.FONT_HERSHEY_SIMPLEX,
             1,
-            color=color,
+            color,
             thickness=thickness
         )
     return image
@@ -65,10 +68,11 @@ def draw_bounding_box(
 
 def draw_keypoints(
         image: np.ndarray,
-        keypoints: list,
-        limbs: Union[list, None] = None,
-        color: Union[np.ndarray, Tuple, List] = (255, 255, 255),
-        limb_color: Union[np.ndarray, Tuple, List] = (255, 255, 255),
+        keypoints: Iterable,
+        limbs: Iterable = None,
+        color: Tuple[int, int, int] = (255, 255, 255),
+        limb_color: Tuple[int, int, int] = (255, 255, 255),
+        limb_only: bool = True
 ) -> np.ndarray:
     """
     Will overlay a set of keypoints on image. If limbs are provided, lines will be drawn to mark them
@@ -79,10 +83,14 @@ def draw_keypoints(
     keypoints.
     :param color: Color to be used for points
     :param limb_color: Color to be used for limbs
+    :param limb_only: If True, draw only limb connections and no keypoints
     :return: Image
     """
-    pose = np.array(keypoints).astype(int)
-    thickness = max(image.shape) // 350
+    pose = np.array(keypoints)
+    thickness = round(max(image.shape) / 350)
+    w, h = image.shape[:2]
+    scale = np.array([w, h]) if np.all(pose <= 1.0) else np.array([1, 1])
+    pose = (pose*scale).astype(int)
 
     if limbs is not None:
         for src, dst in limbs:
@@ -92,9 +100,10 @@ def draw_keypoints(
                 continue
             image = cv2.line(image, (x1, y1), (x2, y2), limb_color, thickness=thickness)
 
-    for x, y in pose:
-        if x < 0 or y < 0:
-            continue
-        image = cv2.circle(image, (x, y), thickness, color, thickness=-1)
+    if not limb_only:
+        for x, y in pose:
+            if x < 0 or y < 0:
+                continue
+            image = cv2.circle(image, (x, y), thickness, color, thickness=-1)
 
     return image
