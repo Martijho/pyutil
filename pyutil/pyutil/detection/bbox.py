@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import numpy as np
-import json
 from typing import List, Union, Iterable
 
 
@@ -116,7 +115,7 @@ def save_detections(
 
 def load_detections(
         input_path: Union[str, Path]
-) -> Iterable:
+):
     """
     Loads detections from npy file
     :param input_path: File path
@@ -126,4 +125,4 @@ def load_detections(
 
     assert input_path.exists(), f'{input_path} does not exist'
 
-    return np.load(str(input_path))
+    return np.load(str(input_path)).tolist()
