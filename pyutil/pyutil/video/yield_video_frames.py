@@ -13,7 +13,7 @@ def yield_video_frames(
     """
     Reads video file using opencv and yields frame by frame
     :param video_file: String or path of video file
-    :param color_mode: rgb or bgr
+    :param color_mode: rgb, bgr or gray
     :param image_shape: If given, reshape to this tuple.
     :param use_pbar: If True, output tqdm progressbar
     """
@@ -40,7 +40,11 @@ def yield_video_frames(
             yield frame_count, frame
         elif color_mode.lower() == 'rgb':
             yield frame_count, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
+        elif color_mode.lower() in {'gray', 'grayscale'}:
+            yield frame_count, cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        else:
+            raise ValueError('Invalid color mode. Only rgb, bgr and gray is supported')
+        
         frame_count += 1
     if use_pbar:
         pbar.close()
