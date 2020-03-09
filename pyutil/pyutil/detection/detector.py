@@ -64,8 +64,16 @@ class Detector:
     def run(
             self,
             image: np.ndarray,
-            output_raw: bool = False
+            output_raw: bool = False,
+            coordinate_mode: str = 'absolute'
     ):
+        if coordinate_mode.lower() == 'absolute':
+            h, w = image.shape[:2]
+        elif coordinate_mode.lower() == 'relative':
+            h, w = 1, 1
+        else:
+            raise ValueError('Coordinate mode must be relative or absolute')
+
         image_tensor = self._detection_graph.get_tensor_by_name('image_tensor:0')
         output_tensors = [
             self._detection_graph.get_tensor_by_name(name) for name in [
@@ -86,7 +94,7 @@ class Detector:
         boxes, confs, label_ids, n, input_shape = raw_output
         n = int(n[0])
         confs = confs[0]
-        boxes = [[b[1], b[0], b[3], b[2]] for b in boxes[0]]
+        boxes = [[b[1] * w, b[0] * h, b[3] * w, b[2] * h] for b in boxes[0]]
         labels = [
             self.labels[lid] if self.labels is not None else str(lid)
             for lid in label_ids[0]

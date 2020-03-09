@@ -1,4 +1,8 @@
-from typing import List, Union
+from pathlib import Path
+
+import numpy as np
+import json
+from typing import List, Union, Iterable
 
 
 def clip(
@@ -32,13 +36,13 @@ def pad_box(
     :param ratio: How much of side length to expand in all direction. 0.1 gives a new side length of 120% of original
     :return: New box coordinates
     """
-    xmin, xmax, ymin, ymax = box
+    xmin, ymin, xmax, ymax = box
     w, h = xmax - xmin, ymax - ymin
 
     xmin -= w * ratio
     ymin -= h * ratio
-    xmax -= w * ratio
-    ymax -= h * ratio
+    xmax += w * ratio
+    ymax += h * ratio
 
     return [xmin, ymin, xmax, ymax]
 
@@ -84,7 +88,7 @@ def pad_box_to_aspect_ratio(
 
     xmin, ymin, xmax, ymax = box
     w, h = xmax - xmin, ymax - ymin
-    assert w > 0 and h > 0, 'Box must have side lengths > 0'
+    assert w > 0 and h > 0, f'Box must have side lengths > 0. {box}'
 
     if w / h < aspect_ratio:
         xmin, xmax = pad_func(xmin, xmax, h * aspect_ratio, image_width)
@@ -92,3 +96,34 @@ def pad_box_to_aspect_ratio(
         ymin, ymax = pad_func(ymin, ymax, w / aspect_ratio, image_height)
 
     return [xmin, ymin, xmax, ymax]
+
+
+def save_detections(
+        detections: Iterable,
+        output_path: Union[str, Path]
+):
+    """
+    Dumps detections to npy file
+    :param detections: Detection data.
+    :param output_path: Where to store detections
+    """
+    output_path = Path(output_path)
+
+    assert output_path.parent.exists(), f'{output_path.parent} does not exist.'
+
+    np.save(str(output_path), detections)
+
+
+def load_detections(
+        input_path: Union[str, Path]
+) -> Iterable:
+    """
+    Loads detections from npy file
+    :param input_path: File path
+    :return: Detections
+    """
+    input_path = Path(input_path)
+
+    assert input_path.exists(), f'{input_path} does not exist'
+
+    return np.load(str(input_path))

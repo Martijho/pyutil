@@ -42,4 +42,5 @@ def yield_video_frames(
             yield frame_count, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         frame_count += 1
-    pbar.close()
+    if use_pbar:
+        pbar.close()

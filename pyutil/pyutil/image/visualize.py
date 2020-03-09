@@ -23,7 +23,7 @@ def get_random_color_map(
 
 def draw_bounding_box(
         image: np.ndarray,
-        detection: Dict[str: Any],
+        detection: Dict[str, Any],
         color: Tuple[int, int, int] = (255, 255, 255),
         show_label: bool = True,
         show_confidence: bool = True
@@ -88,7 +88,7 @@ def draw_keypoints(
     """
     pose = np.array(keypoints)
     thickness = round(max(image.shape) / 350)
-    w, h = image.shape[:2]
+    h, w = image.shape[:2]
     scale = np.array([w, h]) if np.all(pose <= 1.0) else np.array([1, 1])
     pose = (pose*scale).astype(int)
 
