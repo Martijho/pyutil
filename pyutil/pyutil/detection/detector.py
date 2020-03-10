@@ -1,15 +1,20 @@
 from typing import Union
 
-import tensorflow as tf
 from pathlib import Path
 import numpy as np
 
+import tensorflow as tf
 from object_detection.utils import label_map_util
 
 
 def load_model(
         model_dir: Union[str, Path]
 ) -> "Detector":
+    """
+    Loads tensorflow object detector model from files in directory provided.
+    :param model_dir: Path to model directory. Must contain a 'frozen_inference_graph.pb'
+    :return: Detector-object
+    """
     model_dir = Path(model_dir)
 
     assert model_dir.exists(), 'Model directory does not exist'

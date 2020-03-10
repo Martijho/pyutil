@@ -2,8 +2,7 @@
 
 ## PyUtil
 View readme <a href='pyutil/README.md'>here</a><br>
-To install the package run 
-```bash
-pip install pytil/
-```
+
+To install the package run `pip install pytil/` in this repo root directory. 
+
 

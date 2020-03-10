@@ -8,7 +8,7 @@ def yield_video_frames(
         video_file: Union[str, "Path"],
         color_mode: str = 'bgr',
         image_shape: Union[tuple, None] = None,
-        use_pbar: bool = True
+        use_pbar: bool = False
 ):
     """
     Reads video file using opencv and yields frame by frame
