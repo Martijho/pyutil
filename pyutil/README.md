@@ -23,6 +23,18 @@ cv2.destroyAllWindows()
 ```
 ##### get_video_stats
 Takes a path to a video file and returns a tuple with`(number of image frames, (image height, image width), video FPS)`
+##### class: VideoCreator
+A small wrapper for cv2.VideoWriter. Mostly to help remember/simplify how its used. 
+Use the object in a with-block or remember to call on .start() and .stop() methods.
+example: 
+```python 
+from pyutil.video import VideoCreator
+some_images = [...]
+with VideoCreator('output_video.mp4', fps=30, image_shape=(500, 500), color_mode='gray') as vc:
+for image in images:
+    vc.add_frame(image)
+```
+
 
 ### pyutil.image
 ##### get_random_color_map

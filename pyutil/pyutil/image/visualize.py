@@ -89,7 +89,7 @@ def draw_keypoints(
     pose = np.array(keypoints)
     thickness = round(max(image.shape) / 350)
     h, w = image.shape[:2]
-    scale = np.array([w, h]) if np.all(pose <= 1.0) else np.array([1, 1])
+    scale = np.array([w, h]) if np.all(pose[~np.isnan(pose)] <= 1.0) else np.array([1, 1])
     pose = (pose*scale).astype(int)
 
     if limbs is not None:

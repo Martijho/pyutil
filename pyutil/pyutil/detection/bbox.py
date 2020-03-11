@@ -126,3 +126,29 @@ def load_detections(
     assert input_path.exists(), f'{input_path} does not exist'
 
     return np.load(str(input_path)).tolist()
+
+
+def calc_iou(
+        box1: Union[list, np.ndarray],
+        box2: Union[list, np.ndarray]
+) -> float:
+    """
+    Calculates Intersection Over Union between two boxes
+    :param box1: Coordinates for box 1
+    :param box2: Coordinates for box 2
+    :return: Intersection Over Union
+    """
+    # TODO: verify coordinate mode is the same
+    assert len(box1) == len(box2) == 4
+
+    x11, y11, x12, y12 = box1
+    x21, y21, x22, y22 = box2
+    xA = max(x11, x21)
+    yA = max(y11, y21)
+    xB = min(x12, x22)
+    yB = min(y12, y22)
+    interArea = max((xB - xA + 1), 0) * max((yB - yA + 1), 0)
+    boxAArea = (x12 - x11 + 1) * (y12 - y11 + 1)
+    boxBArea = (x22 - x21 + 1) * (y22 - y21 + 1)
+    iou = interArea / (boxAArea + boxBArea - interArea)
+    return iou
