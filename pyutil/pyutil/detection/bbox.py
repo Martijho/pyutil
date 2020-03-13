@@ -110,7 +110,7 @@ def save_detections(
 
     assert output_path.parent.exists(), f'{output_path.parent} does not exist.'
 
-    np.save(str(output_path), detections)
+    np.save(str(output_path), detections, allow_pickle=True)
 
 
 def load_detections(
@@ -125,7 +125,7 @@ def load_detections(
 
     assert input_path.exists(), f'{input_path} does not exist'
 
-    return np.load(str(input_path)).tolist()
+    return np.load(str(input_path), allow_pickle=True).tolist()
 
 
 def calc_iou(
