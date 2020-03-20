@@ -97,6 +97,42 @@ def pad_box_to_aspect_ratio(
     return [xmin, ymin, xmax, ymax]
 
 
+def box_to_absolute_coordinates(
+        box: List[Union[int, float]],
+        image_height: int,
+        image_width: int
+) -> List[Union[int]]:
+    """
+    Conver box coordinates to absolute coordinates
+    :param box: Bounding box in relative coordinates
+    :param image_height: Image height in pixels
+    :param image_width: Image width in pixels
+    :return: Box in absolute coordinates
+    """
+    box = np.array(box)
+    assert np.all(box <= 1.0), 'Box coordinates is not relative'
+
+    return (box * np.array([image_width, image_height, image_width, image_height])).astype(int).tolist()
+
+
+def box_to_relative_coordinates(
+        box: List[Union[int, float]],
+        image_height: int,
+        image_width: int
+) -> List[Union[float]]:
+    """
+    Conver box coordinates to relative coordinates
+    :param box: Bounding box in absolute coordinates
+    :param image_height: Image height in pixels
+    :param image_width: Image width in pixels
+    :return: Box in relative coordinates
+    """
+    box = np.array(box)
+    assert np.all(box[2:] > 1.0), 'Box coordinates is not absolute'
+
+    return (box / np.array([image_width, image_height, image_width, image_height])).tolist()
+
+
 def save_detections(
         detections: Iterable,
         output_path: Union[str, Path]

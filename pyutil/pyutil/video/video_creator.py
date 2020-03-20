@@ -50,7 +50,7 @@ class VideoCreator:
 
     def add_frame(self, frame):
         if self.vid_writer is None:
-            self.image_size = (frame.shape[0], frame.shape[1])
+            self.image_size = (frame.shape[1], frame.shape[0])
             self.vid_writer = cv2.VideoWriter(
                 self.file_name,
                 self.forcc,

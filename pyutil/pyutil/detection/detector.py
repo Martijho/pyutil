@@ -97,6 +97,8 @@ class Detector:
             return raw_output
 
         boxes, confs, label_ids, n, input_shape = raw_output
+        boxes = np.clip(boxes, a_min=0., a_max=1.)
+
         n = int(n[0])
         confs = confs[0]
         boxes = [[b[1] * w, b[0] * h, b[3] * w, b[2] * h] for b in boxes[0]]

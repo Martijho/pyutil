@@ -7,7 +7,7 @@ Requires tensorflow and [object_detection](https://github.com/tensorflow/models/
 ### pyutil.video
 ##### yield_video_frames
 Takes a path to a video file and will yield frame number and video frames in tuples.
-Example
+Example yields every frame up to frame nr 100 from the video-file 'video_path.mp4'. Each image is 640 by 480 BGR
 ```python
 from pyutil.video import yield_video_frames
 import cv2
@@ -15,7 +15,8 @@ for frame_nr, frame in yield_video_frames(
     'video_path.mp4',
     color_mode='bgr', 
     image_shape=(640, 480), 
-    use_pbar=True
+    use_pbar=True, 
+    frame_window=(0, 100)
 ): 
     cv2.imshow('video', frame)
     cv2.waitKey(30)

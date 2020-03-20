@@ -1,14 +1,15 @@
 import cv2
 from tqdm import tqdm
 
-from typing import Union
+from typing import Union, Tuple
 
 
 def yield_video_frames(
         video_file: Union[str, "Path"],
         color_mode: str = 'bgr',
         image_shape: Union[tuple, None] = None,
-        use_pbar: bool = False
+        use_pbar: bool = False,
+        frame_window: Union[Tuple[int, int], None] = None
 ):
     """
     Reads video file using opencv and yields frame by frame
@@ -16,18 +17,25 @@ def yield_video_frames(
     :param color_mode: rgb, bgr or gray
     :param image_shape: If given, reshape to this tuple.
     :param use_pbar: If True, output tqdm progressbar
+    :param frame_window: Tuple of start and stop frame (inclusive) to yield from video
     """
 
     cap = cv2.VideoCapture(str(video_file))
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
+    if frame_window is None:
+        frame_window = (0, frame_count)
+
+    cap.set(cv2.CAP_PROP_POS_FRAMES, frame_window[0])
     assert cap.isOpened(), 'Video stream is not open'
 
     pbar = tqdm(total=frame_count) if use_pbar else None
 
-    frame_count = 0
+    frame_count = frame_window[0]
     while cap.isOpened():
         ret, frame = cap.read()
+        if frame_count > frame_window[1]:
+            break
         if not ret:
             break
 
