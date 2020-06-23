@@ -4,7 +4,6 @@ from pathlib import Path
 import numpy as np
 
 import tensorflow as tf
-from object_detection.utils import label_map_util
 
 
 def load_model(
@@ -15,6 +14,7 @@ def load_model(
     :param model_dir: Path to model directory. Must contain a 'frozen_inference_graph.pb'
     :return: Detector-object
     """
+
     model_dir = Path(model_dir)
 
     assert model_dir.exists(), 'Model directory does not exist'
@@ -51,6 +51,7 @@ class Detector:
             self.input_shape_tensor = tf.shape('image_tensor:0', name='input_shape_tensor')
 
     def _load_pbtxt(self, pbtxt_file):
+        from object_detection.utils import label_map_util
         if pbtxt_file is not None:
             self.labels = {
                 int(pred_nr): label for label, pred_nr in label_map_util.get_label_map_dict(pbtxt_file).items()
