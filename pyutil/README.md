@@ -8,7 +8,7 @@ Requires tensorflow and [object_detection](https://github.com/tensorflow/models/
 * [pyutil.video](README.md#pyutil.video)
     * [pyutil.video.yield_video_frames](README.md#yield_video_frames)
     * [pyutil.video.get_video_stats](README.md#get_video_stats)
-    * [pyutil.video.VideoCreator](README.md#Class:VideoCreator)
+    * [pyutil.video.VideoCreator](README.md#classvideocreator)
 * [pyutil.image](README.md#image)
     * [pyutil.image.get_random_color_map](README.md#get_random_color_map)
     * [pyutil.image.draw_keypoints](README.md#draw_keypoints)
@@ -20,11 +20,11 @@ Requires tensorflow and [object_detection](https://github.com/tensorflow/models/
     * [pyutil.detection.save_detections](README.md#save_detections)
     * [pyutil.detection.load_detections](README.md#load_detections)
     * [pyutil.detection.detector.load_model](README.md#load_model)
-    * [pyutil.detection.detector.Detector](README.md#Class:Detector)
+    * [pyutil.detection.detector.Detector](README.md#classdetector)
 * [pyutil.keras](README.md#keras)
     * [pyutil.keras.run_lr_sweep](README.md#run_lr_sweep)
-    * [pyutil.keras.callbacks.LRTensorBoard](README.md#Class:LRTensorBoard)
-    * [pyutil.keras.callbacks.CallbackWrapper](README.md#Class:CallbackWrapper)
+    * [pyutil.keras.callbacks.LRTensorBoard](README.md#classlrtensorboard)
+    * [pyutil.keras.callbacks.CallbackWrapper](README.md#classcallbackWrapper)
 
 ### pyutil.video
 ##### yield_video_frames
