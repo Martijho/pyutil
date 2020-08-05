@@ -30,7 +30,7 @@ Requires tensorflow and [object_detection](https://github.com/tensorflow/models/
 ##### yield_video_frames
 Takes a path to a video file and will yield frame number and video frames in tuples.
 Example yields every frame up to frame nr 100 from the video-file 'video_path.mp4'. Each image is 640 by 480 BGR
-```
+```python
 from pyutil.video import yield_video_frames
 import cv2
 for frame_nr, frame in yield_video_frames(
@@ -50,12 +50,12 @@ Takes a path to a video file and returns a tuple with`(number of image frames, (
 A small wrapper for cv2.VideoWriter. Mostly to help remember/simplify how its used. 
 Use the object in a with-block or remember to call on .start() and .stop() methods.
 example: 
-```python 
+```python
 from pyutil.video import VideoCreator
 some_images = [...]
 with VideoCreator('output_video.mp4', fps=30, image_shape=(500, 500), color_mode='gray') as vc:
-for image in images:
-    vc.add_frame(image)
+    for image in some_images:
+        vc.add_frame(image)
 ```
 
 ### pyutil.image
@@ -66,13 +66,13 @@ of labels.
 Function that overlays a detection on an image. Current detection format only supports detections as a dict with the keys
 "box", "label" and "confidence".
 Example
-```
+```python
 from pyutil.image import get_random_color_map, draw_bounding_box
 from matplotlib import pyplot as plt
 
 c = get_random_color_map()
 image = ... # Some image
-detections ... # List of detection-dicts
+detections = [...] # List of detection-dicts
 
 for det in detections: 
     image = draw_bounding_box(
@@ -90,14 +90,14 @@ Function that overlays keypoints on an image. One of the optional parameter is "
 can be provided. Both keypoints and limbs bust be iterables that yields two values. For keypoints these values are x and y coordinates
 for a landmark, and for limbs these points are two indices for which points in keypoints that are to be connected. 
 Example
-```
+```python
 from pyutil.image import get_random_color_map, draw_keypoints
 from matplotlib import pyplot as plt
 
 c = get_random_color_map()
 image = ... # Some image
-keypoints = ... # List of keypoints
-connections = ... # List of which keypoints to be connected
+keypoints = [...] # List of keypoints
+connections = [...] # List of which keypoints to be connected
 
 image = draw_keypoints(
     image, 
@@ -134,8 +134,8 @@ must contain a `frozen_inference_graph.pb` file, and optionally a label map as a
 A class wrapper for a tensorflow object detection model. The object loads a .pb and a .pbtxt file on initialization. 
 Use objects of this class in a with-block and get inferences through the .run() method. 
 Example of how inference can be done with this class and the load_model function
-```
-from pyutil.detector import load_model
+```python
+from pyutil.detection.detector import load_model
 
 model_directory = '...' # Path to a tensorflow object detection model
 image = ... # Some image
@@ -164,12 +164,14 @@ The wrapper will replace all methods in the callback that matches the named argu
 
 Input-arguments to callable function must match those provided to the matching keras-callback function.
 Example of how to wrap a function in a CallbackWrapper
-```
+```python
+from pyutil.keras.callbacks import CallbackWrapper
+
 def wrapped_on_epoch_end_function(epoch, logs=None):
     print(f'Epoch {epoch} ended')
 
 model.fit(
-    ...
+    ...,
     callbacks=[
         CallbackWrapper(
             on_epoch_end=wrapped_on_epoch_end_function, 
