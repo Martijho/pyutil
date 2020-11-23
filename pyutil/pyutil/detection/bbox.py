@@ -165,8 +165,8 @@ def load_detections(
 
 
 def calc_iou(
-        box1: Union[list, np.ndarray],
-        box2: Union[list, np.ndarray]
+        box1: Union[list, tuple, np.ndarray],
+        box2: Union[list, tuple, np.ndarray]
 ) -> float:
     """
     Calculates Intersection Over Union between two boxes
@@ -175,16 +175,27 @@ def calc_iou(
     :return: Intersection Over Union
     """
     # TODO: verify coordinate mode is the same
-    assert len(box1) == len(box2) == 4
+    if type(box1) != np.ndarray:
+        box1 = np.array(box1)
+    assert box1.shape == (4,), f'{box1.shape}'
 
-    x11, y11, x12, y12 = box1
-    x21, y21, x22, y22 = box2
-    xA = max(x11, x21)
-    yA = max(y11, y21)
-    xB = min(x12, x22)
-    yB = min(y12, y22)
-    interArea = max((xB - xA + 1), 0) * max((yB - yA + 1), 0)
-    boxAArea = (x12 - x11 + 1) * (y12 - y11 + 1)
-    boxBArea = (x22 - x21 + 1) * (y22 - y21 + 1)
-    iou = interArea / (boxAArea + boxBArea - interArea)
+    if type(box2) != np.ndarray:
+        box2 = np.array(box2)
+    if len(box2.shape) == 1:
+        box2 = box2[None]
+    assert len(box2.shape) == 2 and box2.shape[1] == 4, f'{box2.shape}'
+
+    inter_upleft = np.maximum(box2[:, :2], box1[:2])
+    inter_botright = np.minimum(box2[:, 2:4], box1[2:])
+    inter_wh = inter_botright - inter_upleft
+    inter_wh = np.maximum(inter_wh, 0)
+    inter = inter_wh[:, 0] * inter_wh[:, 1]
+    # compute union
+    area_pred = (box1[2] - box1[0]) * (box1[3] - box1[1])
+    area_gt = (box2[:, 2] - box2[:, 0]) * (box2[:, 3] - box2[:, 1])
+    union = area_pred + area_gt - inter
+    # compute iou
+    iou = inter / union
+    if box2.shape[0] == 1:
+        return float(iou)
     return iou
