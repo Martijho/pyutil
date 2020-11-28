@@ -199,3 +199,42 @@ def calc_iou(
     if box2.shape[0] == 1:
         return float(iou)
     return iou
+
+
+def calc_ioa(
+    box1: Union[list, tuple, np.ndarray],
+    box2: Union[list, tuple, np.ndarray]
+
+) -> float:
+    """
+    Calculates Intersection Over Area between two boxes
+    :param box1: Coordinates for box 1
+    :param box2: Coordinates for box 2
+    :return: Intersection Over Union
+    """
+    # TODO: verify coordinate mode is the same
+    if type(box1) != np.ndarray:
+        box1 = np.array(box1)
+    assert box1.shape == (4,), f'{box1.shape}'
+
+    if type(box2) != np.ndarray:
+        box2 = np.array(box2)
+    if len(box2.shape) == 1:
+        box2 = box2[None]
+    assert len(box2.shape) == 2 and box2.shape[1] == 4, f'{box2.shape}'
+
+    inter_upleft = np.maximum(box2[:, :2], box1[:2])
+    inter_botright = np.minimum(box2[:, 2:4], box1[2:])
+    inter_wh = inter_botright - inter_upleft
+    inter_wh = np.maximum(inter_wh, 0)
+    inter = inter_wh[:, 0] * inter_wh[:, 1]
+    # compute union
+    area_pred = (box1[2] - box1[0]) * (box1[3] - box1[1])
+    # area_gt = (box2[:, 2] - box2[:, 0]) * (box2[:, 3] - box2[:, 1])
+    # union = area_pred + area_gt - inter
+    # compute iou
+    ioa = inter / area_pred
+    if box2.shape[0] == 1:
+        return float(ioa)
+    return ioa
+
