@@ -115,6 +115,9 @@ class Img:
             )
         return self.image
 
+    def get(self):
+        return self.image
+
     def resize(self, *args, **kwargs):
         """
         Resizes image to given shape inplace.
@@ -172,3 +175,9 @@ class Img:
         cv2.imshow(name, image)
         cv2.waitKey()
         cv2.destroyAllWindows()
+
+    def save(
+            self, 
+            path: Union[str, Path]
+    ):
+        cv2.imwrite(str(path), self.bgr)
