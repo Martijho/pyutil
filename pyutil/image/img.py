@@ -1,11 +1,13 @@
 import re
 import warnings
-from typing import Union, Tuple
+from typing import Union, Tuple, Iterable
 
 import cv2
 import magic
 import numpy as np
 from pathlib import Path
+
+from pyutil.image.visualize import draw_keypoints, draw_bounding_box
 
 
 class Img:
@@ -24,8 +26,8 @@ class Img:
         if type(data) == np.ndarray:
             self.path = 'NOT DEFINED'
             self.image = np.array(data)
-            self.h, w = self.image.shape[:2]
-            self.color_mode = numpy_color_mode
+            self._h, self._w = self.image.shape[:2]
+            self._color_mode = numpy_color_mode
             self.lazy = lazy
         else:
             if not Path(data).exists():
@@ -38,18 +40,18 @@ class Img:
                 self._load()
             else:
                 self.image = None
-                self.color_mode = None
+                self._color_mode = None
                 t = magic.from_file(self.path).split('baseline')[-1]
-                self.w, self.h = re.search('(\d+) ?x ?(\d+)', t).groups()
-                self.w, self.h = int(self.w), int(self.h)
+                self._h, self._w = re.search('(\d+) ?x ?(\d+)', t).groups()
+                self._h, self._w = int(self.w), int(self.h)
 
     def _load(self):
         """
         Loads image into memory using cv2.
         """
         self.image = cv2.imread(self.path)
-        self.h, self.w = self.image.shape[:2]
-        self.color_mode = 'bgr'
+        self._h, self._w = self.image.shape[:2]
+        self._color_mode = 'bgr'
 
     def _cond_warn_and_load(self):
         if self.image is None:
@@ -66,12 +68,28 @@ class Img:
         return self.image.shape
 
     @property
+    def h(self) -> int:
+        """
+        Get height
+        :return: height
+        """
+        return self._h
+
+    @property
+    def w(self):
+        """
+        get width
+        :return: width
+        """
+        return self._w
+
+    @property
     def hw(self) -> Tuple[int, int]:
         """
         Gets image height and width
         :return: (image height, image width)
         """
-        return self.h, self.w
+        return self._h, self._w
 
     @property
     def wh(self) -> Tuple[int, int]:
@@ -79,7 +97,7 @@ class Img:
         Gets image width and height
         :return: (image width, image height)
         """
-        return self.w, self.h
+        return self._w, self._h
 
     @property
     def color(self) -> str:
@@ -87,31 +105,33 @@ class Img:
         Gets image color mode as a string
         :return: color mode
         """
-        return self.color_mode
+        return self._color_mode
 
     @property
     def rgb(self) -> np.ndarray:
         self._cond_warn_and_load()
-        if self.color_mode == 'rgb':
+        if self._color_mode == 'rgb':
             pass
-        elif self.color_mode == 'bgr':
+        elif self._color_mode == 'bgr':
             self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
-            self.color_mode = 'rgb'
+            self._color_mode = 'rgb'
         else:
-            raise NotImplementedError('Cannot change colormode to rgb from anything other than rgb|bgr')
+            raise NotImplementedError(
+                f'Cannot change colormode to rgb from anything other than rgb|bgr ({self._color_mode})'
+            )
         return self.image
 
     @property
     def bgr(self) -> np.ndarray:
         self._cond_warn_and_load()
-        if self.color_mode == 'bgr':
+        if self._color_mode == 'bgr':
             pass
-        elif self.color_mode == 'rgb':
+        elif self._color_mode == 'rgb':
             self.image = cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR)
-            self.color_mode = 'bgr'
+            self._color_mode = 'bgr'
         else:
             raise NotImplementedError(
-                f'Cannot change colormode to bgr from anything other than rgb|bgr ({self.color_mode})'
+                f'Cannot change colormode to bgr from anything other than rgb|bgr ({self._color_mode})'
             )
         return self.image
 
@@ -150,31 +170,69 @@ class Img:
             elif len(args) == 1:
                 h, w = args[0], args[0]
 
-        pixel_h = int(self.h * h) if type(h) == float else h
-        pixel_w = int(self.w * w) if type(w) == float else w
+        pixel_h = int(self._h * h) if type(h) == float else h
+        pixel_w = int(self._w * w) if type(w) == float else w
 
-        pixel_h = self.h if pixel_h == 1 or pixel_h is None else pixel_h
-        pixel_w = self.w if pixel_w == 1 or pixel_w is None else pixel_w
+        pixel_h = self._h if pixel_h == 1 or pixel_h is None else pixel_h
+        pixel_w = self._w if pixel_w == 1 or pixel_w is None else pixel_w
 
         self.image = cv2.resize(self.image, (pixel_w, pixel_h))
 
     def show(
             self,
-            fs: bool = False
+            fs: bool = False,
+            bboxes: Union[Iterable, None] = None,
+            keypoints: Union[Iterable, None] = None
     ):
         """
         Shows image using cv2
         :param fs: Show image in fullscreen
+        :param bboxes: Iterable of bounding box dicts.
+            Each dict must contain 'box', 'label', 'confidence' keywords
+        :param keypoints: Iterable of keypoints as np.ndarray.
+            Can optionally be a iterable of tuples where element 0 is keypoint
+            and element 1 is dictionary of named arguments to draw_keypoints
         """
-        image = self.bgr
+
+        orig_color = self.color
+        image = np.array(self.bgr)
         name = ''
         if fs:
             cv2.namedWindow(name, cv2.WND_PROP_FULLSCREEN)
             cv2.setWindowProperty(name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
+        if bboxes is not None:
+            for b in bboxes:
+                image = draw_bounding_box(
+                    image,
+                    b,
+                    show_label=True,
+                    show_confidence=True
+                )
+        if keypoints is not None:
+            for kp in keypoints:
+                if type(kp) == tuple:
+                    kp, kwargs = kp
+                    image = draw_keypoints(
+                        image,
+                        kp,
+                        **kwargs
+                    )
+                else:
+                    image = draw_keypoints(
+                        image,
+                        kp,
+                        limb_only=False
+                    )
+
         cv2.imshow(name, image)
         cv2.waitKey()
         cv2.destroyAllWindows()
+
+        if orig_color == 'rgb':
+            _ = self.rgb
+        elif orig_color == 'bgr':
+            _ = self.bgr
 
     def save(
             self, 

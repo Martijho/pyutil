@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyutil", # Replace with your own username
-    version="0.0.1",
+    version="0.0.2",
     author="Martin Jordal Hovin",
     author_email="martinhovin91@gmail.com",
     description="Quality of life package for python",

@@ -1,1 +1,2 @@
-from pyutil.image.img import Img
+from .image.img import Img
+from .video.vid import Vid

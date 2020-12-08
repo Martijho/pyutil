@@ -1,6 +1,7 @@
 import cv2
 from tqdm import tqdm
 
+import warnings
 from typing import Union, Tuple
 
 
@@ -19,7 +20,7 @@ def yield_video_frames(
     :param use_pbar: If True, output tqdm progressbar
     :param frame_window: Tuple of start and stop frame (inclusive) to yield from video
     """
-
+    warnings.warn('Deprecated warning. Use Vid() object')
     cap = cv2.VideoCapture(str(video_file))
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
