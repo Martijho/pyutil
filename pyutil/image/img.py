@@ -177,6 +177,7 @@ class Img:
         pixel_w = self._w if pixel_w == 1 or pixel_w is None else pixel_w
 
         self.image = cv2.resize(self.image, (pixel_w, pixel_h))
+        self._h, self._w = self.image.shape[:2]
 
     def show(
             self,
