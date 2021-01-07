@@ -101,10 +101,20 @@ class Vid:
             if ord('q') == cv2.waitKey(wait_time):
                 break
         cv2.destroyAllWindows()
+    
+    def save_imgs(self, path):
+
+        Path.mkdir(Path(path), parents=True, exist_ok=True)
+
+        frame = 0
+        for i in self: 
+            i.save(
+                path + '{0:05d}.jpg'.format(frame)
+            )
+            frame+=1
 
 
 if __name__ == '__main__':
-    v = Vid('/home/martin/data/sevensix/gold_standard/casper_ruud_fh.mp4', size=(100, 100))
+    v = Vid('/home/jonas/Videos/002_serve.MOV')
 
-    for i in v:
-        print(i.wh)
+    v.save_imgs('/home/jonas/Videos/002/')
