@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Tuple, Union, List, Callable
 
 import cv2
 import numpy as np
@@ -101,6 +101,33 @@ class Vid:
             if ord('q') == cv2.waitKey(wait_time):
                 break
         cv2.destroyAllWindows()
+
+    def get_frame_selection(
+            self,
+            frame_indices: List[int] = None,
+            frame_filter: Callable = None
+    ) -> List[Union[Img, np.ndarray]]:
+        """
+        Returns a list of frames from the video
+        :param frame_indices: If not None, returns frames with these indicecs
+        :param frame_filter: Functions which takes a Img or np.ndarray and returns True if the frame is to be returned
+        :return: List of np.ndarrays or Img-objects
+        """
+        frames = []
+        if frame_indices is None:
+            frame_indices = []
+        if frame_filter is None:
+            frame_filter = lambda x: False
+
+        frame_indices = sorted(frame_indices)
+        for i, frame in enumerate(self):
+            if frame_indices[0] == i:
+                frames.append(frame)
+                frame_indices.pop(0)
+            elif frame_filter(frame):
+                frames.append(frame)
+
+        return frames
 
 
 if __name__ == '__main__':

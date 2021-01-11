@@ -1,6 +1,6 @@
 import re
 import warnings
-from typing import Union, Tuple, Iterable
+from typing import Union, Tuple, Iterable, List
 
 import cv2
 import magic
@@ -240,3 +240,27 @@ class Img:
             path: Union[str, Path]
     ):
         cv2.imwrite(str(path), self.bgr)
+
+    @staticmethod
+    def glob_images(
+            root: Union[str, Path],
+            recursively: bool = True,
+            filetypes: Union[str, List[str]] = 'jpg'
+    ) -> List["Img"]:
+        """
+        Globs all images in a directory as Img objects with lazy loading
+        :param root: root to glob
+        :param recursively: if true, golbs recursively
+        :param filetypes: single or list of filetypes to glob. default is jpg
+        :return: list of Img objects
+        """
+        root = Path(root)
+        filetypes = [filetypes] if type(filetypes) == str else filetypes
+
+        get_paths = root.rglob if recursively else root.glob
+
+        imgs = []
+        for ft in filetypes:
+            for p in get_paths(f'*.{ft}'):
+                imgs.append(Img(p, lazy=True))
+        return imgs
