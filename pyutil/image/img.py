@@ -151,6 +151,8 @@ class Img:
         :param args: 0, 1 or 2 unnamed arguments
         :param kwargs:  0, 1 or 2 named arguments
         """
+        self._cond_warn_and_load()
+
         if len(args) > 0:
             assert len(kwargs) == 0, 'Only named or unnamed arguments, not both'
         if len(kwargs) > 0:
@@ -179,28 +181,24 @@ class Img:
         self.image = cv2.resize(self.image, (pixel_w, pixel_h))
         self._h, self._w = self.image.shape[:2]
 
-    def show(
+    def draw_on_image(
             self,
-            fs: bool = False,
             bboxes: Union[Iterable, None] = None,
-            keypoints: Union[Iterable, None] = None
-    ):
+            keypoints: Union[Iterable, None] = None,
+            image: Union[np.ndarray, None] = None
+    ) -> np.ndarray:
         """
-        Shows image using cv2
-        :param fs: Show image in fullscreen
+        Draws bboxes and keypoints on image
         :param bboxes: Iterable of bounding box dicts.
             Each dict must contain 'box', 'label', 'confidence' keywords
         :param keypoints: Iterable of keypoints as np.ndarray.
             Can optionally be a iterable of tuples where element 0 is keypoint
             and element 1 is dictionary of named arguments to draw_keypoints
+        :param image: If not None, draw on this input, else create new np.array of self
+        :return : returns nparray of image in current state with keypoints/bboxes drawn
         """
 
-        orig_color = self.color
-        image = np.array(self.bgr)
-        name = ''
-        if fs:
-            cv2.namedWindow(name, cv2.WND_PROP_FULLSCREEN)
-            cv2.setWindowProperty(name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        image = np.array(self.image) if image is None else image
 
         if bboxes is not None:
             for b in bboxes:
@@ -225,6 +223,31 @@ class Img:
                         kp,
                         limb_only=False
                     )
+        return image
+
+    def show(
+            self,
+            fs: bool = False,
+            bboxes: Union[Iterable, None] = None,
+            keypoints: Union[Iterable, None] = None
+    ):
+        """
+        Shows image using cv2
+        :param fs: Show image in fullscreen
+        :param bboxes: Iterable of bounding box dicts.
+            Each dict must contain 'box', 'label', 'confidence' keywords
+        :param keypoints: Iterable of keypoints as np.ndarray.
+            Can optionally be a iterable of tuples where element 0 is keypoint
+            and element 1 is dictionary of named arguments to draw_keypoints
+        """
+
+        orig_color = self.color
+        name = ''
+        if fs:
+            cv2.namedWindow(name, cv2.WND_PROP_FULLSCREEN)
+            cv2.setWindowProperty(name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
+        image = self.draw_on_image(bboxes, keypoints)
 
         cv2.imshow(name, image)
         cv2.waitKey()
@@ -245,13 +268,15 @@ class Img:
     def glob_images(
             root: Union[str, Path],
             recursively: bool = True,
-            filetypes: Union[str, List[str]] = 'jpg'
+            filetypes: Union[str, List[str]] = 'jpg',
+            lazy: bool = True
     ) -> List["Img"]:
         """
         Globs all images in a directory as Img objects with lazy loading
         :param root: root to glob
         :param recursively: if true, golbs recursively
         :param filetypes: single or list of filetypes to glob. default is jpg
+        :param lazy: Create "lazy" objects if false
         :return: list of Img objects
         """
         root = Path(root)
@@ -262,5 +287,5 @@ class Img:
         imgs = []
         for ft in filetypes:
             for p in get_paths(f'*.{ft}'):
-                imgs.append(Img(p, lazy=True))
+                imgs.append(Img(p, lazy=lazy))
         return imgs

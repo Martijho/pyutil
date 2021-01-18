@@ -132,6 +132,8 @@ class Vid:
 
         frame_indices = sorted(frame_indices)
         for i, frame in enumerate(self):
+            if len(frame_indices) == 0:
+                break
             if frame_indices[0] == i:
                 frames.append(frame)
                 frame_indices.pop(0)
