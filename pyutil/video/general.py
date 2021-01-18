@@ -12,7 +12,7 @@ def get_video_stats(
     :param video_file: path to video file
     :return: (#frames, (image height, image width), fps)
     """
-    assert Path(video_file).exists(), f'{video_file} does not exist'
+    assert Path(video_file).exists(), '{} does not exist'.format(video_file)
 
     cap = cv2.VideoCapture(str(video_file))
     n_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))

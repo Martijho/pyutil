@@ -25,9 +25,9 @@ class Vid:
         :param as_img_objects: Returned image is Img object if True, numpy array if False
         """
         if not Path(path).exists():
-            raise FileNotFoundError(f'{path} not found')
+            raise FileNotFoundError('{} not found'.format(path))
         if color_mode not in {'rgb', 'bgr'}:
-            raise ValueError(f'Unexpected color mode. {color_mode} not in (rgb, bgr)')
+            raise ValueError('Unexpected color mode. {} not in (rgb, bgr)'.format(color_mode))
 
         self.path = str(path)
         self._color_mode = color_mode
