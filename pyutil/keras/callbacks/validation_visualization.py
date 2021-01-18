@@ -121,7 +121,7 @@ class ValPoseVisualize(Callback):
                 drawn = np.array(img.rgb)
                 for p in poses:
                     drawn = img.draw_on_image(drawn, keypoints=p)
-                tf.summary.image(f'plot/image_{i}', drawn[None], step=epoch)
+                tf.summary.image('plot/image_'+str(i), drawn[None], step=epoch)
 
     def post_process_prediction(
             self,

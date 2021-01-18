@@ -51,7 +51,7 @@ def draw_bounding_box(
     if show_label:
         out_txt = detection['label']
     if show_confidence:
-        out_txt += f'({detection["confidence"]:.2f})'
+        out_txt += '({})'.format(round(detection["confidence"], 2))
 
     if out_txt != '':
         image = cv2.putText(

@@ -31,7 +31,7 @@ class Img:
             self.lazy = lazy
         else:
             if not Path(data).exists():
-                raise FileNotFoundError(f'{data} not found')
+                raise FileNotFoundError('{} not found'.format(data))
 
             self.path = str(data)
             self.lazy = lazy
@@ -117,7 +117,7 @@ class Img:
             self._color_mode = 'rgb'
         else:
             raise NotImplementedError(
-                f'Cannot change colormode to rgb from anything other than rgb|bgr ({self._color_mode})'
+                'Cannot change colormode to rgb from anything other than rgb|bgr ({})'.format(self._color_mode)
             )
         return self.image
 
@@ -131,7 +131,7 @@ class Img:
             self._color_mode = 'bgr'
         else:
             raise NotImplementedError(
-                f'Cannot change colormode to bgr from anything other than rgb|bgr ({self._color_mode})'
+                'Cannot change colormode to bgr from anything other than rgb|bgr ({})'.format(self._color_mode)
             )
         return self.image
 
@@ -286,6 +286,6 @@ class Img:
 
         imgs = []
         for ft in filetypes:
-            for p in get_paths(f'*.{ft}'):
+            for p in get_paths('*.{}'.format(ft)):
                 imgs.append(Img(p, lazy=lazy))
         return imgs
