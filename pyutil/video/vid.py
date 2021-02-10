@@ -87,10 +87,10 @@ class Vid:
         use 'q' to stop video
 
         :param fs: Show in fullscreen
-        :param fps: overwrite video FPS for visualization
+        :param fps: overwrite video FPS for visualization. 0 if step through frame by frame
         """
         fps = self.fps if fps is None else fps
-        wait_time = int(1000/fps)
+        wait_time = int(1000/fps) if fps != 0 else 0
         name = ''
         if fs:
             cv2.namedWindow(name, cv2.WND_PROP_FULLSCREEN)
