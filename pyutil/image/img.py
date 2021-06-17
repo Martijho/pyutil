@@ -135,6 +135,19 @@ class Img:
             )
         return self.image
 
+    @property
+    def gray(self) -> np.ndarray: 
+        self._cond_warn_and_load()
+        if self._color_mode == 'bgr': 
+            c2g = cv2.COLOR_BGR2GRAY 
+        elif self._color_mode == 'rgb': 
+            c2g = cv2.COLOR_RGB2GRAY
+        else:
+            raise NotImplementedError(
+                'Cannot change colormode to bgr from anything other than rgb|bgr ({})'.format(self._color_mode)
+            )
+        return cv2.cvtColor(self.image, c2g)
+
     def get(self):
         return self.image
 
